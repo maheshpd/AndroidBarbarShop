@@ -5,6 +5,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ public class HomeActivity extends AppCompatActivity {
 
     CollectionReference userRef;
 
+    AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +51,13 @@ public class HomeActivity extends AppCompatActivity {
         ButterKnife.bind(HomeActivity.this);
         //Init
         userRef = FirebaseFirestore.getInstance().collection("User");
-
+       dialog = new SpotsDialog.Builder().setContext(this).setCancelable(false).build();
         //Check intent , if is login = true ,enable full access
         //If id login = false , just let user around shopping to view
         if (getIntent() != null) {
             boolean isLogin = getIntent().getBooleanExtra(Common.IS_LOGIN, false);
             if (isLogin) {
+                dialog.show();
                 //Check if user is exists
                 AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
                     @Override
@@ -109,6 +112,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void showUpdateDialog(final String phoneNumber) {
+
+        if (dialog.isShowing())
+            dialog.dismiss();
+
         //Init dialog
         bottomSheetDialog = new BottomSheetDialog(this);
         bottomSheetDialog.setTitle("One more step!");
