@@ -83,6 +83,10 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
                                                 DocumentSnapshot userSnapShot = task.getResult();
                                                 if (!userSnapShot.exists()) {
                                                     showUpdateDialog(account.getPhoneNumber().toString());
+                                                }else {
+                                                    //if user already available in our system
+                                                    Common.currentUser = userSnapShot.toObject(User.class);
+                                                    bottomNavigationView.setSelectedItemId(R.id.action_home);
                                                 }
                                                 if (dialog.isShowing())
                                                     dialog.dismiss();
@@ -120,8 +124,6 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
                 return loadFragment(fragment);
             }
         });
-
-        bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
     private boolean loadFragment(Fragment fragment) {
@@ -151,7 +153,7 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
             public void onClick(View v) {
                 if (!dialog.isShowing())
                     dialog.show();
-                User user = new User(edt_name.getText().toString(),
+                final User user = new User(edt_name.getText().toString(),
                         edt_address.getText().toString(),
                         phoneNumber);
                 userRef.document(phoneNumber)
@@ -162,6 +164,8 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
                                 bottomSheetDialog.dismiss();
                                 if (dialog.isShowing())
                                     dialog.dismiss();
+                                Common.currentUser = user;
+                                bottomNavigationView.setSelectedItemId(R.id.action_home);
                                 Toast.makeText(HomeActivity.this, "Thank you", Toast.LENGTH_SHORT).show();
                             }
                         }).addOnFailureListener(new OnFailureListener() {
