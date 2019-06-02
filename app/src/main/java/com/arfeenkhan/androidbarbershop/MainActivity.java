@@ -31,7 +31,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
-
     private static final int APP_REQUEST_CODE = 7117; // Any number you Want
 
     @BindView(R.id.btn_login)

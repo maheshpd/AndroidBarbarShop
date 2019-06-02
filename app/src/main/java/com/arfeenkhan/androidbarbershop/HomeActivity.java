@@ -1,11 +1,12 @@
 package com.arfeenkhan.androidbarbershop;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -41,19 +42,23 @@ public class HomeActivity extends AppCompatActivity {
     BottomSheetDialog bottomSheetDialog;
 
     CollectionReference userRef;
-
-    AlertDialog dialog;
-
+    ProgressDialog dialog;
+    AlertDialog alertDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(HomeActivity.this);
+
         //Init
         userRef = FirebaseFirestore.getInstance().collection("User");
-       dialog = new SpotsDialog.Builder().setContext(this).setCancelable(false).build();
+
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Please wait...");
+        dialog.setCanceledOnTouchOutside(false);
+
         //Check intent , if is login = true ,enable full access
-        //If id login = false , just let user around shopping to view
+        //If if login = false , just let user around shopping to view
         if (getIntent() != null) {
             boolean isLogin = getIntent().getBooleanExtra(Common.IS_LOGIN, false);
             if (isLogin) {
@@ -70,8 +75,11 @@ public class HomeActivity extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                             if (task.isSuccessful()) {
                                                 DocumentSnapshot userSnapShot = task.getResult();
-                                                if (!userSnapShot.exists())
+                                                if (!userSnapShot.exists()) {
                                                     showUpdateDialog(account.getPhoneNumber().toString());
+                                                }
+                                                if (dialog.isShowing())
+                                                    dialog.dismiss();
                                             }
                                         }
                                     });
@@ -101,27 +109,27 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
     private boolean loadFragment(Fragment fragment) {
         if (fragment != null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment)
+                    .commit();
             return true;
         }
         return false;
     }
 
     private void showUpdateDialog(final String phoneNumber) {
-
-        if (dialog.isShowing())
-            dialog.dismiss();
-
         //Init dialog
         bottomSheetDialog = new BottomSheetDialog(this);
         bottomSheetDialog.setTitle("One more step!");
         bottomSheetDialog.setCanceledOnTouchOutside(false);
         bottomSheetDialog.setCancelable(false);
         View sheetView = getLayoutInflater().inflate(R.layout.layout_update_information, null);
+
+
         Button btn_update = sheetView.findViewById(R.id.btn_update);
         final TextInputEditText edt_name = sheetView.findViewById(R.id.edt_name);
         final TextInputEditText edt_address = sheetView.findViewById(R.id.edt_address);
@@ -129,6 +137,8 @@ public class HomeActivity extends AppCompatActivity {
         btn_update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!dialog.isShowing())
+                    dialog.show();
                 User user = new User(edt_name.getText().toString(),
                         edt_address.getText().toString(),
                         phoneNumber);
@@ -138,19 +148,21 @@ public class HomeActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 bottomSheetDialog.dismiss();
+                                if (dialog.isShowing())
+                                    dialog.dismiss();
                                 Toast.makeText(HomeActivity.this, "Thank you", Toast.LENGTH_SHORT).show();
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         bottomSheetDialog.dismiss();
+                        if (dialog.isShowing())
+                            dialog.dismiss();
                         Toast.makeText(HomeActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
-
-
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
     }
