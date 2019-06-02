@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop;
+package com.arfeenkhan.androidbarbershop.Activity;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
+import com.arfeenkhan.androidbarbershop.R;
 import com.facebook.accountkit.AccessToken;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitLoginResult;

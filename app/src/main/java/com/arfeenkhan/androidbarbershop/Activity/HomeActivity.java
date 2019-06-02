@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop;
+package com.arfeenkhan.androidbarbershop.Activity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -19,6 +19,7 @@ import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Fragments.HomeFragment;
 import com.arfeenkhan.androidbarbershop.Fragments.ShopingFragment;
 import com.arfeenkhan.androidbarbershop.Model.User;
+import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.Utils.UpdateHelper;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;

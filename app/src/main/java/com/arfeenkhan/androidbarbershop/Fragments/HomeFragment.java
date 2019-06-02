@@ -1,9 +1,11 @@
 package com.arfeenkhan.androidbarbershop.Fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arfeenkhan.androidbarbershop.Activity.BookingActivity;
 import com.arfeenkhan.androidbarbershop.Adapter.HomeSliderAdapter;
 import com.arfeenkhan.androidbarbershop.Adapter.LookbookAdapter;
 import com.arfeenkhan.androidbarbershop.Common.Common;
@@ -36,6 +39,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import ss.com.bannerslider.Slider;
 
@@ -53,6 +57,13 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     Slider banner_slider;
     @BindView(R.id.recycler_look_book)
     RecyclerView recycler_look_book;
+    @OnClick(R.id.card_view_booking)
+        void booking()
+        {
+            startActivity(new Intent(getActivity(), BookingActivity.class));
+        }
+
+
 
     //FirstStore
     CollectionReference bannerRef,lookbookRef;
