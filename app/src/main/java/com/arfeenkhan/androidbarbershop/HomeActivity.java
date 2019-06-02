@@ -2,6 +2,7 @@ package com.arfeenkhan.androidbarbershop;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetDialog;
@@ -18,6 +19,7 @@ import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Fragments.HomeFragment;
 import com.arfeenkhan.androidbarbershop.Fragments.ShopingFragment;
 import com.arfeenkhan.androidbarbershop.Model.User;
+import com.arfeenkhan.androidbarbershop.Utils.UpdateHelper;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
@@ -34,7 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUpdateCheckListener{
 
     @BindView(R.id.bottom_navigation)
     BottomNavigationView bottomNavigationView;
@@ -52,6 +54,10 @@ public class HomeActivity extends AppCompatActivity {
 
         //Init
         userRef = FirebaseFirestore.getInstance().collection("User");
+
+
+
+
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Please wait...");
@@ -80,6 +86,12 @@ public class HomeActivity extends AppCompatActivity {
                                                 }
                                                 if (dialog.isShowing())
                                                     dialog.dismiss();
+
+                                                UpdateHelper.with(HomeActivity.this)
+                                                        .onUpdateCheck(HomeActivity.this)
+                                                        .check();
+
+
                                             }
                                         }
                                     });
@@ -165,5 +177,25 @@ public class HomeActivity extends AppCompatActivity {
         });
         bottomSheetDialog.setContentView(sheetView);
         bottomSheetDialog.show();
+    }
+
+    @Override
+    public void onUpdateCheckListener(final String urlApp) {
+            //Create Alert Dialog
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("New Version Available")
+                .setMessage("Please update to new version to continue use")
+                .setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(HomeActivity.this, ""+urlApp, Toast.LENGTH_SHORT).show();
+                    }
+                }).setNegativeButton("NO THANKS", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).create();
+        alertDialog.show();
     }
 }
