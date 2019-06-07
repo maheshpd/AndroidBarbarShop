@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.arfeenkhan.androidbarbershop.Adapter.MySalonAdapter;
+import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Common.SpacesItemDecoration;
 import com.arfeenkhan.androidbarbershop.Interface.IAllSalonLoadListener;
 import com.arfeenkhan.androidbarbershop.Interface.IBranchLoadListener;
@@ -129,6 +130,8 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
+        Common.city = cityName;
+
         branchRef = FirebaseFirestore.getInstance()
                 .collection("AllSalon")
                 .document(cityName)
@@ -141,7 +144,11 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
                 if (task.isSuccessful())
                 {
                     for (QueryDocumentSnapshot documentSnapshot:task.getResult())
-                        list.add(documentSnapshot.toObject(Salon.class));
+                    {
+                        Salon salon= documentSnapshot.toObject(Salon.class);
+                        salon.setSalonId(documentSnapshot.getId());
+                        list.add(salon);
+                    }
                     iBranchLoadListener.onBranchLoadSuccess(list);
                 }
             }
