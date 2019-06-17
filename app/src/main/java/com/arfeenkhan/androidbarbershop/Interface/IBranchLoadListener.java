@@ -1,6 +1,6 @@
 package com.arfeenkhan.androidbarbershop.Interface;
 
-import com.arfeenkhan.androidbarbershop.Model.Salon;
+import com.arfeenkhan.androidbarbershop.model.Salon;
 
 import java.util.List;
 

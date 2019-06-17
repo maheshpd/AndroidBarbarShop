@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Fragments;
+package com.arfeenkhan.androidbarbershop.fragments;
 
 
 import android.os.Bundle;

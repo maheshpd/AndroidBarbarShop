@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Adapter;
+package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Interface.IRecycleItemSelectedListener;
-import com.arfeenkhan.androidbarbershop.Model.Salon;
+import com.arfeenkhan.androidbarbershop.model.Salon;
 import com.arfeenkhan.androidbarbershop.R;
 
 import java.util.ArrayList;

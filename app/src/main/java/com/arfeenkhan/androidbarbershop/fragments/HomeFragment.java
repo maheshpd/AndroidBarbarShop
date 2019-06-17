@@ -1,11 +1,10 @@
-package com.arfeenkhan.androidbarbershop.Fragments;
+package com.arfeenkhan.androidbarbershop.fragments;
 
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,15 +14,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.arfeenkhan.androidbarbershop.Activity.BookingActivity;
-import com.arfeenkhan.androidbarbershop.Adapter.HomeSliderAdapter;
-import com.arfeenkhan.androidbarbershop.Adapter.LookbookAdapter;
+import com.arfeenkhan.androidbarbershop.activity.BookingActivity;
+import com.arfeenkhan.androidbarbershop.adapter.HomeSliderAdapter;
+import com.arfeenkhan.androidbarbershop.adapter.LookbookAdapter;
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Interface.IBannerLoadListener;
 import com.arfeenkhan.androidbarbershop.Interface.ILookbookLoadListener;
-import com.arfeenkhan.androidbarbershop.Model.Banner;
+import com.arfeenkhan.androidbarbershop.model.Banner;
 import com.arfeenkhan.androidbarbershop.R;
-import com.arfeenkhan.androidbarbershop.Service.PicassoImageLoadingService;
+import com.arfeenkhan.androidbarbershop.service.PicassoImageLoadingService;
 import com.facebook.accountkit.AccountKit;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,7 +33,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import butterknife.BindView;

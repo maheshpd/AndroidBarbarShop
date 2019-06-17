@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Fragments;
+package com.arfeenkhan.androidbarbershop.fragments;
 
 
 import android.os.Bundle;
@@ -13,13 +13,13 @@ import com.arfeenkhan.androidbarbershop.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class BookingStep4Fragment extends Fragment {
+public class BookingStep3Fragment extends Fragment {
 
-    static BookingStep4Fragment instance;
+    static BookingStep3Fragment instance;
 
-    public static  BookingStep4Fragment getInstance() {
+    public static  BookingStep3Fragment getInstance() {
         if (instance == null)
-            instance = new BookingStep4Fragment();
+            instance = new BookingStep3Fragment();
         return instance;
     }
 
@@ -32,7 +32,7 @@ public class BookingStep4Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_booking_step4, container, false);
+        return inflater.inflate(R.layout.fragment_booking_step3, container, false);
     }
 
 }

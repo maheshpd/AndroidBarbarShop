@@ -1,6 +1,6 @@
 package com.arfeenkhan.androidbarbershop.Interface;
 
-import com.arfeenkhan.androidbarbershop.Model.Banner;
+import com.arfeenkhan.androidbarbershop.model.Banner;
 
 import java.util.List;
 

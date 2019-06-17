@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Model;
+package com.arfeenkhan.androidbarbershop.model;
 
 public class Banner {
     //Lookbook and banner is same

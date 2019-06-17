@@ -1,7 +1,6 @@
-package com.arfeenkhan.androidbarbershop.Fragments;
+package com.arfeenkhan.androidbarbershop.fragments;
 
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,12 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.arfeenkhan.androidbarbershop.Adapter.MySalonAdapter;
+import com.arfeenkhan.androidbarbershop.adapter.MySalonAdapter;
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Common.SpacesItemDecoration;
 import com.arfeenkhan.androidbarbershop.Interface.IAllSalonLoadListener;
 import com.arfeenkhan.androidbarbershop.Interface.IBranchLoadListener;
-import com.arfeenkhan.androidbarbershop.Model.Salon;
+import com.arfeenkhan.androidbarbershop.model.Salon;
 import com.arfeenkhan.androidbarbershop.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;

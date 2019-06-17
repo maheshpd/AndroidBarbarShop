@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Activity;
+package com.arfeenkhan.androidbarbershop.activity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -16,11 +16,11 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
-import com.arfeenkhan.androidbarbershop.Fragments.HomeFragment;
-import com.arfeenkhan.androidbarbershop.Fragments.ShopingFragment;
-import com.arfeenkhan.androidbarbershop.Model.User;
+import com.arfeenkhan.androidbarbershop.fragments.HomeFragment;
+import com.arfeenkhan.androidbarbershop.fragments.ShopingFragment;
+import com.arfeenkhan.androidbarbershop.model.User;
 import com.arfeenkhan.androidbarbershop.R;
-import com.arfeenkhan.androidbarbershop.Utils.UpdateHelper;
+import com.arfeenkhan.androidbarbershop.utils.UpdateHelper;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
@@ -55,10 +55,6 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
 
         //Init
         userRef = FirebaseFirestore.getInstance().collection("User");
-
-
-
-
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Please wait...");
@@ -184,6 +180,9 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
         bottomSheetDialog.show();
     }
 
+    /*
+    This is use for check update app version
+     */
     @Override
     public void onUpdateCheckListener(final String urlApp) {
             //Create Alert Dialog

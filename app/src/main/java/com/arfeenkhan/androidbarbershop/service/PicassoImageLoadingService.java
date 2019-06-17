@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Service;
+package com.arfeenkhan.androidbarbershop.service;
 
 import android.widget.ImageView;
 

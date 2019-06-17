@@ -1,25 +1,22 @@
-package com.arfeenkhan.androidbarbershop.Activity;
+package com.arfeenkhan.androidbarbershop.activity;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
-import android.support.constraint.Barrier;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.arfeenkhan.androidbarbershop.Adapter.MyViewPagerAdapter;
+import com.arfeenkhan.androidbarbershop.adapter.MyViewPagerAdapter;
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Common.NonSwipeViewPager;
-import com.arfeenkhan.androidbarbershop.Model.Barber;
+import com.arfeenkhan.androidbarbershop.model.Barber;
 import com.arfeenkhan.androidbarbershop.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -86,7 +83,7 @@ public class BookingActivity extends AppCompatActivity {
                     .document(Common.city)
                     .collection("Branch")
                     .document(salonId)
-                    .collection("Barber");
+                    .collection("Barbers");
             barberRef.get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -177,6 +174,7 @@ public class BookingActivity extends AppCompatActivity {
     private void setColorButton() {
         if (btn_next_step.isEnabled()) {
             btn_next_step.setBackgroundResource(R.color.colorButton);
+            btn_next_step.setTextColor(getResources().getColor(android.R.color.white));
         } else {
             btn_next_step.setBackgroundResource(android.R.color.darker_gray);
         }

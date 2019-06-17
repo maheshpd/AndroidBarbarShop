@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/my_bg"
     android:padding="8dp"
-    tools:context=".Activity.MainActivity">
+    tools:context=".activity.MainActivity">
 
     <TextView
         android:id="@+id/txt_skip"

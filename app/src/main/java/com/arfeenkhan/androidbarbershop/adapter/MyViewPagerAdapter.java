@@ -1,13 +1,13 @@
-package com.arfeenkhan.androidbarbershop.Adapter;
+package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.arfeenkhan.androidbarbershop.Fragments.BookingStep1Fragment;
-import com.arfeenkhan.androidbarbershop.Fragments.BookingStep2Fragment;
-import com.arfeenkhan.androidbarbershop.Fragments.BookingStep3Fragment;
-import com.arfeenkhan.androidbarbershop.Fragments.BookingStep4Fragment;
+import com.arfeenkhan.androidbarbershop.fragments.BookingStep1Fragment;
+import com.arfeenkhan.androidbarbershop.fragments.BookingStep2Fragment;
+import com.arfeenkhan.androidbarbershop.fragments.BookingStep3Fragment;
+import com.arfeenkhan.androidbarbershop.fragments.BookingStep4Fragment;
 
 public class MyViewPagerAdapter extends FragmentPagerAdapter {
 

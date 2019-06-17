@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Model;
+package com.arfeenkhan.androidbarbershop.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

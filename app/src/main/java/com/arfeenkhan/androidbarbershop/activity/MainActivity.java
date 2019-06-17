@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Activity;
+package com.arfeenkhan.androidbarbershop.activity;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -32,6 +32,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
+    /**
+     * Database i m using from mahesh@arfeenkhan.com
+     */
+
+
     private static final int APP_REQUEST_CODE = 7117; // Any number you Want
 
     @BindView(R.id.btn_login)

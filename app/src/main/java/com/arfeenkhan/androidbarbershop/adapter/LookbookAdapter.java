@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Adapter;
+package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.arfeenkhan.androidbarbershop.Model.Banner;
+import com.arfeenkhan.androidbarbershop.model.Banner;
 import com.arfeenkhan.androidbarbershop.R;
 import com.squareup.picasso.Picasso;
 

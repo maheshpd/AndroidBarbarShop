@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Utils;
+package com.arfeenkhan.androidbarbershop.utils;
 
 import android.app.Application;
 import android.support.annotation.NonNull;

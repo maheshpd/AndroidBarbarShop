@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Adapter;
+package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.arfeenkhan.androidbarbershop.Model.Barber;
+import com.arfeenkhan.androidbarbershop.model.Barber;
 import com.arfeenkhan.androidbarbershop.R;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyBarb
     @Override
     public MyBarberViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.from(context)
-                .inflate(R.layout.layout_salon,viewGroup,false);
+                .inflate(R.layout.layout_barber,viewGroup,false);
         return new MyBarberViewHolder(itemView);
     }
 

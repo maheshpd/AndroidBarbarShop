@@ -1,4 +1,4 @@
-package com.arfeenkhan.androidbarbershop.Fragments;
+package com.arfeenkhan.androidbarbershop.fragments;
 
 
 import android.content.BroadcastReceiver;
@@ -15,10 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.arfeenkhan.androidbarbershop.Adapter.MyBarberAdapter;
+import com.arfeenkhan.androidbarbershop.adapter.MyBarberAdapter;
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Common.SpacesItemDecoration;
-import com.arfeenkhan.androidbarbershop.Model.Barber;
+import com.arfeenkhan.androidbarbershop.model.Barber;
 import com.arfeenkhan.androidbarbershop.R;
 
 import java.util.ArrayList;

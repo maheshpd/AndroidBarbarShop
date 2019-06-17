@@ -1,7 +1,7 @@
 package com.arfeenkhan.androidbarbershop.Common;
 
-import com.arfeenkhan.androidbarbershop.Model.Salon;
-import com.arfeenkhan.androidbarbershop.Model.User;
+import com.arfeenkhan.androidbarbershop.model.Salon;
+import com.arfeenkhan.androidbarbershop.model.User;
 
 public class Common {
     public static final String KEY_ENABLE_BUTTON_NEXT = "ENABLE_BUTTON_NEXT";
