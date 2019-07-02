@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -35,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Database i m using from mahesh@arfeenkhan.com
      */
-
-
     private static final int APP_REQUEST_CODE = 7117; // Any number you Want
 
     @BindView(R.id.btn_login)

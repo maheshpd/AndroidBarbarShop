@@ -5,10 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
@@ -66,9 +66,30 @@ public class BookingActivity extends AppCompatActivity {
             {
                 if (Common.currentSalon != null)
                     loadBarberBySalon(Common.currentSalon.getSalonId());
+            }else if (Common.step == 2) //Pick time slot
+            {
+                if (Common.currentBarber != null)
+                    loadTimeslotOfBarber(Common.currentBarber.getBarberId());
+            }
+            else if (Common.step == 3) // Confirm
+            {
+                if (Common.currentTimeSlot != -1)
+                   confirmBooking();
             }
             viewPager.setCurrentItem(Common.step);
         }
+    }
+
+    private void confirmBooking() {
+        //Send broadcast to fragment step four
+        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
+        localBroadcastManager.sendBroadcast(intent);
+    }
+
+    private void loadTimeslotOfBarber(String barberId) {
+        // Send Local Broadcast to Fragment step 3
+        Intent intent = new Intent(Common.KEY_DISPLAK_TIME_SLOT);
+        localBroadcastManager.sendBroadcast(intent);
     }
 
     private void loadBarberBySalon(String salonId) {
@@ -116,7 +137,13 @@ public class BookingActivity extends AppCompatActivity {
     private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            int step = intent.getIntExtra(Common.KEY_SEMP,0);
+            if (step == 1)
             Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
+            else if (step == 2)
+                Common.currentBarber = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
+            else if (step == 3)
+                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT,-1);
             btn_next_step.setEnabled(true);
             setColorButton();
         }
@@ -155,6 +182,9 @@ public class BookingActivity extends AppCompatActivity {
                     btn_previous_step.setEnabled(false);
                 else
                     btn_previous_step.setEnabled(true);
+
+                //Set disable button next here
+                btn_next_step.setEnabled(false);
                 setColorButton();
             }
 

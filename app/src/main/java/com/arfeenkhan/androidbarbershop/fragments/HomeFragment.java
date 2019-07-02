@@ -3,10 +3,12 @@ package com.arfeenkhan.androidbarbershop.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,24 +57,23 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     Slider banner_slider;
     @BindView(R.id.recycler_look_book)
     RecyclerView recycler_look_book;
-    @OnClick(R.id.card_view_booking)
-        void booking()
-        {
-            startActivity(new Intent(getActivity(), BookingActivity.class));
-        }
 
+    @OnClick(R.id.card_view_booking)
+    void booking() {
+        startActivity(new Intent(getActivity(), BookingActivity.class));
+    }
 
 
     //FirstStore
-    CollectionReference bannerRef,lookbookRef;
+    CollectionReference bannerRef, lookbookRef;
 
     //Interface
     IBannerLoadListener iBannerLoadListener;
     ILookbookLoadListener iLookbookLoadListener;
 
     public HomeFragment() {
-       bannerRef = FirebaseFirestore.getInstance().collection("Banner");
-       lookbookRef = FirebaseFirestore.getInstance().collection("Lookbook");
+        bannerRef = FirebaseFirestore.getInstance().collection("Banner");
+        lookbookRef = FirebaseFirestore.getInstance().collection("Lookbook");
     }
 
 
@@ -102,10 +103,8 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<Banner> lookbooks = new ArrayList<>();
-                        if (task.isSuccessful())
-                        {
-                            for (QueryDocumentSnapshot bannerSnapShot:task.getResult())
-                            {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot bannerSnapShot : task.getResult()) {
                                 Banner banner = bannerSnapShot.toObject(Banner.class);
                                 lookbooks.add(banner);
                             }
@@ -126,10 +125,8 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<Banner> banners = new ArrayList<>();
-                        if (task.isSuccessful())
-                        {
-                            for (QueryDocumentSnapshot bannerSnapShot:task.getResult())
-                            {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot bannerSnapShot : task.getResult()) {
                                 Banner banner = bannerSnapShot.toObject(Banner.class);
                                 banners.add(banner);
                             }
@@ -151,9 +148,9 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
 
     @Override
     public void onLookbookLoadSuccess(List<Banner> banners) {
-recycler_look_book.setHasFixedSize(true);
-recycler_look_book.setLayoutManager(new LinearLayoutManager(getActivity()));
-recycler_look_book.setAdapter(new LookbookAdapter(banners,getActivity()));
+        recycler_look_book.setHasFixedSize(true);
+        recycler_look_book.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recycler_look_book.setAdapter(new LookbookAdapter(banners, getActivity()));
     }
 
     @Override

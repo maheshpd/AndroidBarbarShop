@@ -2,10 +2,10 @@ package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +61,7 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MySalonV
                 //Send Broadcast to tell Booking Activity enable Button next
                 Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
                 intent.putExtra(Common.KEY_SALON_STORE,salonList.get(position));
+                intent.putExtra(Common.KEY_SEMP,1);
                 localBroadcastManager.sendBroadcast(intent);
             }
         });
