@@ -84,26 +84,28 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
             cardViewList.add(holder.card_time_slot);
 
         //Check if card time slot is available
-        holder.setiRecycleItemSelectedListener(new IRecycleItemSelectedListener() {
-            @Override
-            public void onItemSelectedListener(View view, int position) {
-                //Loop all card in card List
-                for (CardView cardView:cardViewList) {
-                    if (cardView.getTag() == null) //Only available card time slot be change
-                        cardView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
-                }
-                //Our selected card will be change color
-                holder.card_time_slot.setCardBackgroundColor(context.getResources()
-                        .getColor(android.R.color.holo_orange_dark));
 
-                //After that , send broadcast to enable button NEXt
-                Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-                intent.putExtra(Common.KEY_TIME_SLOT,position); //Put index of time slot we have selected
-                intent.putExtra(Common.KEY_SEMP,3); //Go to step 3
-                localBroadcastManager.sendBroadcast(intent);
-            }
-        });
-    }
+            holder.setiRecycleItemSelectedListener(new IRecycleItemSelectedListener() {
+                @Override
+                public void onItemSelectedListener(View view, int position) {
+                    //Loop all card in card List
+                    for (CardView cardView:cardViewList) {
+                        if (cardView.getTag() == null) //Only available card time slot be change
+                            cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
+                    }
+                    //Our selected card will be change color
+                    holder.card_time_slot.setCardBackgroundColor(context.getResources()
+                            .getColor(android.R.color.holo_orange_dark));
+
+                    //After that , send broadcast to enable button NEXt
+                    Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
+                    intent.putExtra(Common.KEY_TIME_SLOT,position); //Put index of time slot we have selected
+                    intent.putExtra(Common.KEY_SEMP,3); //Go to step 3
+                    localBroadcastManager.sendBroadcast(intent);
+                }
+            });
+        }
+
 
     @Override
     public int getItemCount() {

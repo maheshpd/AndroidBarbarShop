@@ -11,7 +11,9 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.arfeenkhan.androidbarbershop.adapter.MyViewPagerAdapter;
 import com.arfeenkhan.androidbarbershop.Common.Common;
@@ -55,6 +57,11 @@ public class BookingActivity extends AppCompatActivity {
         if (Common.step == 3 || Common.step > 0) {
             Common.step--;
             viewPager.setCurrentItem(Common.step);
+            if (Common.step < 3) //Always enable NEXT when Step < 3
+            {
+                btn_next_step.setEnabled(true);
+                setColorButton();
+            }
         }
     }
 
@@ -138,8 +145,9 @@ public class BookingActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             int step = intent.getIntExtra(Common.KEY_SEMP,0);
-            if (step == 1)
-            Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
+            if (step == 1) {
+                Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
+            }
             else if (step == 2)
                 Common.currentBarber = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
             else if (step == 3)

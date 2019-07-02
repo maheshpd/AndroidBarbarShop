@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -15,12 +16,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.model.BookingInformation;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.net.CookieHandler;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,7 +63,55 @@ public class BookingStep4Fragment extends Fragment {
 
     @OnClick(R.id.btn_confirm)
     void confirmBookinf() {
+
+        //Create booking information
         BookingInformation bookingInformation = new BookingInformation();
+        bookingInformation.setBarberId(Common.currentBarber.getBarberId());
+        bookingInformation.setBarberName(Common.currentBarber.getName());
+        bookingInformation.setCustomeName(Common.currentUser.getName());
+        bookingInformation.setCustomerPhone(Common.currentUser.getPhoneNumber());
+        bookingInformation.setSalonId(Common.currentSalon.getSalonId());
+        bookingInformation.setSaloneAddress(Common.currentSalon.getAddress());
+        bookingInformation.setSalonName(Common.currentSalon.getName());
+        bookingInformation.setTime(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
+                .append(" at ")
+                .append(simpleDateFormat.format(Common.currentDate.getTime())).toString());
+        bookingInformation.setSlot(Long.valueOf(Common.currentTimeSlot));
+
+        //Submit to Barber document
+        DocumentReference bookingDate = FirebaseFirestore.getInstance()
+                .collection("AllSalon")
+                .document(Common.city)
+                .collection("Branch")
+                .document(Common.currentSalon.getSalonId())
+                .collection("Barbers")
+                .document(Common.currentBarber.getBarberId())
+                .collection(Common.simpleFormatDate.format(Common.currentDate.getTime()))
+                .document(String.valueOf(Common.currentTimeSlot)); //bookDate is date simpleformat with dd_MM_yyyy = 02_07_2019
+
+        //Write data
+        bookingDate.set(bookingInformation)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        resetStaticData();
+                        getActivity().finish();  //Close activity
+                        Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(), "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void resetStaticData() {
+        Common.step = 0;
+        Common.currentTimeSlot = -1;
+        Common.currentSalon = null;
+        Common.currentBarber = null;
+        Common.currentDate.add(Calendar.DATE, 0);  //Current date added
     }
 
     BroadcastReceiver confirmBookingReceiver = new BroadcastReceiver() {
@@ -105,7 +162,7 @@ public class BookingStep4Fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View itemView = inflater.inflate(R.layout.fragment_booking_step4, container, false);
-        unbinder = ButterKnife.bind(itemView);
+        unbinder = ButterKnife.bind(this, itemView);
         return itemView;
     }
 

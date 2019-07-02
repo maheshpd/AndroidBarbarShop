@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/colorButton"
-            android:enabled="true"
+            android:enabled="false"
             android:fontFamily="@font/bellerose"
             android:text="Previous"
             android:textColor="@android:color/white" />

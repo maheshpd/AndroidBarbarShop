@@ -5,6 +5,7 @@ import com.arfeenkhan.androidbarbershop.model.Salon;
 import com.arfeenkhan.androidbarbershop.model.TimeSlot;
 import com.arfeenkhan.androidbarbershop.model.User;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Common {
@@ -26,6 +27,7 @@ public class Common {
     public static Barber currentBarber;
     public static int currentTimeSlot = -1;
     public static Calendar currentDate = Calendar.getInstance();
+    public static SimpleDateFormat simpleFormatDate = new SimpleDateFormat("dd_MM_yyyy");  //Only use when need format key
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot)
