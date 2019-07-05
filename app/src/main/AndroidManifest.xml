@@ -4,6 +4,8 @@
     package="com.arfeenkhan.androidbarbershop">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
 
     <application
         android:name=".utils.App"

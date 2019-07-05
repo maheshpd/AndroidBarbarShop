@@ -21,11 +21,16 @@ import android.widget.Toast;
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.model.BookingInformation;
+import com.arfeenkhan.androidbarbershop.model.TimeSlot;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.net.CookieHandler;
 import java.text.SimpleDateFormat;
@@ -64,8 +69,30 @@ public class BookingStep4Fragment extends Fragment {
     @OnClick(R.id.btn_confirm)
     void confirmBookinf() {
 
+        //Process Timestamp
+        //We will use Timestamp to filter all booking with date is greater today
+        //Fot only display all future booking
+        String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
+        String[] convertTime = startTime.split("-"); // Split ex : 9:00 - 10:00
+        //Get start time : get 9L00
+        String[] startTimeConvert = convertTime[0].split(":");
+        int startHourInt = Integer.parseInt(startTimeConvert[0].trim()); //we get 9
+        int startMinInt = Integer.parseInt(startTimeConvert[1].trim()); //we get 00
+
+        Calendar bookingDateWithourHouse = Calendar.getInstance();
+        bookingDateWithourHouse.setTimeInMillis(Common.bookingDate.getTimeInMillis());
+        bookingDateWithourHouse.set(Calendar.HOUR_OF_DAY,startHourInt);
+        bookingDateWithourHouse.set(Calendar.MINUTE,startMinInt);
+
+        //Create timestamp object and apply to BookingInformation
+        Timestamp timestamp = new Timestamp(bookingDateWithourHouse.getTime());
+
         //Create booking information
         BookingInformation bookingInformation = new BookingInformation();
+
+        bookingInformation.setTimestamp(timestamp);
+        bookingInformation.setDone(false); //Always FALSE, because we will use this field to filter for display for user
+
         bookingInformation.setBarberId(Common.currentBarber.getBarberId());
         bookingInformation.setBarberName(Common.currentBarber.getName());
         bookingInformation.setCustomeName(Common.currentUser.getName());
@@ -75,7 +102,7 @@ public class BookingStep4Fragment extends Fragment {
         bookingInformation.setSalonName(Common.currentSalon.getName());
         bookingInformation.setTime(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
                 .append(" at ")
-                .append(simpleDateFormat.format(Common.currentDate.getTime())).toString());
+                .append(simpleDateFormat.format(bookingDateWithourHouse.getTime())).toString());
         bookingInformation.setSlot(Long.valueOf(Common.currentTimeSlot));
 
         //Submit to Barber document
@@ -86,7 +113,7 @@ public class BookingStep4Fragment extends Fragment {
                 .document(Common.currentSalon.getSalonId())
                 .collection("Barbers")
                 .document(Common.currentBarber.getBarberId())
-                .collection(Common.simpleFormatDate.format(Common.currentDate.getTime()))
+                .collection(Common.simpleFormatDate.format(Common.bookingDate.getTime()))
                 .document(String.valueOf(Common.currentTimeSlot)); //bookDate is date simpleformat with dd_MM_yyyy = 02_07_2019
 
         //Write data
@@ -94,9 +121,10 @@ public class BookingStep4Fragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        resetStaticData();
-                        getActivity().finish();  //Close activity
-                        Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
+                        //Here we can write an function to check
+                        //If already exist an booking, we will prevent new booking
+
+                        addTOUserBooking(bookingInformation);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -106,12 +134,51 @@ public class BookingStep4Fragment extends Fragment {
         });
     }
 
+    private void addTOUserBooking(BookingInformation bookingInformation) {
+        //First , create new collection
+        CollectionReference userBooking = FirebaseFirestore.getInstance()
+                .collection("User")
+                .document(Common.currentUser.getPhoneNumber())
+                .collection("Booking");
+
+        //Check if exist document in this collection
+        userBooking.whereEqualTo("done",false) //If have any document with field done = false
+        .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.getResult().isEmpty())
+                        {
+                            //Set data
+                            userBooking.document().set(BookingInformation)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            resetStaticData();
+                                            getActivity().finish();  //Close activity
+                                            Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }else {
+                            resetStaticData();
+                            getActivity().finish();  //Close activity
+                            Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
     private void resetStaticData() {
         Common.step = 0;
         Common.currentTimeSlot = -1;
         Common.currentSalon = null;
         Common.currentBarber = null;
-        Common.currentDate.add(Calendar.DATE, 0);  //Current date added
+        Common.bookingDate.add(Calendar.DATE, 0);  //Current date added
     }
 
     BroadcastReceiver confirmBookingReceiver = new BroadcastReceiver() {
@@ -125,7 +192,7 @@ public class BookingStep4Fragment extends Fragment {
         txt_booking_barber_text.setText(Common.currentBarber.getName());
         txt_booking_time_text.setText(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
                 .append(" at ")
-                .append(simpleDateFormat.format(Common.currentDate.getTime())));
+                .append(simpleDateFormat.format(Common.bookingDate.getTime())));
 
         txt_salon_address.setText(Common.currentSalon.getAddress());
         txt_salon_website.setText(Common.currentSalon.getWebsite());
