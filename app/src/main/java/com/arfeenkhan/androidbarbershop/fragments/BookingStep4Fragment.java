@@ -1,10 +1,15 @@
 package com.arfeenkhan.androidbarbershop.fragments;
 
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,13 +39,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.net.CookieHandler;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import dmax.dialog.SpotsDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,6 +60,7 @@ public class BookingStep4Fragment extends Fragment {
     LocalBroadcastManager localBroadcastManager;
     Unbinder unbinder;
 
+    AlertDialog dialog;
 
     @BindView(R.id.txt_booking_barber_text)
     TextView txt_booking_barber_text;
@@ -68,6 +79,8 @@ public class BookingStep4Fragment extends Fragment {
 
     @OnClick(R.id.btn_confirm)
     void confirmBookinf() {
+
+        dialog.show();
 
         //Process Timestamp
         //We will use Timestamp to filter all booking with date is greater today
@@ -150,10 +163,14 @@ public class BookingStep4Fragment extends Fragment {
                         if (task.getResult().isEmpty())
                         {
                             //Set data
-                            userBooking.document().set(BookingInformation)
+                            userBooking.document().set(bookingInformation)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
+                                            if (dialog.isShowing())
+                                                dialog.dismiss();
+                                            addToCalendar(Common.bookingDate,
+                                                    Common.convertTimeSlotToString(Common.currentTimeSlot));
                                             resetStaticData();
                                             getActivity().finish();  //Close activity
                                             Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
@@ -161,16 +178,119 @@ public class BookingStep4Fragment extends Fragment {
                                     }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
+                                    if (dialog.isShowing())
+                                        dialog.dismiss();
                                     Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }else {
+                            if (dialog.isShowing())
+                                dialog.dismiss();
                             resetStaticData();
                             getActivity().finish();  //Close activity
                             Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    private void addToCalendar(Calendar bookingDate, String convertTimeSlotToString) {
+        String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
+        String[] convertTime = startTime.split("-"); // Split ex : 9:00 - 10:00
+        //Get start time : get 9L00
+        String[] startTimeConvert = convertTime[0].split(":");
+        int startHourInt = Integer.parseInt(startTimeConvert[0].trim()); //we get 9
+        int startMinInt = Integer.parseInt(startTimeConvert[1].trim()); //we get 00
+
+        String[] endTimeConvert = convertTime[1].split(":");
+        int endHourInt = Integer.parseInt(endTimeConvert[1].trim()); //we get 10
+        int endMinInt = Integer.parseInt(endTimeConvert[1].trim()); //we get 00
+
+        Calendar startEvent = Calendar.getInstance();
+        startEvent.setTimeInMillis(bookingDate.getTimeInMillis());
+        startEvent.set(Calendar.HOUR_OF_DAY,startHourInt); //Set event start hour
+        startEvent.set(Calendar.MINUTE,startMinInt); //Set event start min
+
+        Calendar endEvent = Calendar.getInstance();
+        endEvent.setTimeInMillis(bookingDate.getTimeInMillis());
+        endEvent.set(Calendar.HOUR_OF_DAY,endHourInt); //Set event end hour
+        endEvent.set(Calendar.MINUTE,endMinInt); //Set event end min
+
+        //After we have startEvent and endEvent , convert it to format String
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM_yyyy HH:mm");
+        String startEventTime = calendarDateFormat.format(startEvent.getTime());
+        String endEventTime = calendarDateFormat.format(endEvent.getTime());
+
+        addToDeviceCalendar(startEventTime,endEventTime,"Haircut Booking",
+                new StringBuilder("Haircut from")
+        .append(startTime)
+        .append(" with ")
+        .append(Common.currentBarber.getName())
+        .append(" at ")
+        .append(Common.currentSalon.getName())
+        .append(" at ")
+        .append(Common.currentSalon.getName()).toString(),
+                new StringBuilder("Address: ").append(Common.currentSalon.getAddress()).toString());
+
+    }
+
+    private void addToDeviceCalendar(String startEventTime, String endEventTime, String title, String description, String location) {
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+
+        try{
+            Date start = calendarDateFormat.parse(startEventTime);
+            Date end = calendarDateFormat.parse(endEventTime);
+
+            ContentValues event = new ContentValues();
+
+            //Put
+            event.put(CalendarContract.Events.CALENDAR_ID,getCalendar(getContext()));
+            event.put(CalendarContract.Events.TITLE,title);
+            event.put(CalendarContract.Events.DESCRIPTION,description);
+            event.put(CalendarContract.Events.EVENT_LOCATION,location);
+
+            //Time
+            event.put(CalendarContract.Events.DTSTART,start.getTime());
+            event.put(CalendarContract.Events.DTEND,end.getTime());
+            event.put(CalendarContract.Events.ALL_DAY,0);
+            event.put(CalendarContract.Events.HAS_ALARM,1);
+
+            String timeZone = TimeZone.getDefault().getID();
+            event.put(CalendarContract.Events.EVENT_TIMEZONE,timeZone);
+
+            Uri calendars = Uri.parse("content://com.android.calendar/calendars");
+            getActivity().getContentResolver().insert(calendars,event);
+
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getCalendar(Context context) {
+        //GEt default calendar ID of Calendar of Gmail
+        String gmailIdCAlendar = "";
+        String projection[] = {"_id","calendar_displayName"};
+        Uri calendars = Uri.parse("content://com.android.calendar/calendars");
+
+        ContentResolver contentResolver = context.getContentResolver();
+        //Select all calendar
+        Cursor managedCursor = contentResolver.query(calendars,projection,null,null,null);
+        if (managedCursor.moveToFirst())
+        {
+            String calName;
+            int nameCol = managedCursor.getColumnIndex(projection[1]);
+            int idCol = managedCursor.getColumnIndex(projection[0]);
+            do{
+                calName = managedCursor.getString(nameCol);
+                if (calName.contains("@gmail.com"))
+                    gmailIdCAlendar = managedCursor.getString(idCol);
+                break; //Exit as soon have id
+            }while (managedCursor.moveToNext());
+            managedCursor.close();
+        }
+
+        return gmailIdCAlendar;
     }
 
     private void resetStaticData() {
@@ -216,6 +336,10 @@ public class BookingStep4Fragment extends Fragment {
         simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
         localBroadcastManager.registerReceiver(confirmBookingReceiver, new IntentFilter(Common.KEY_CONFIRM_BOOKING));
+
+        dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false)
+                .build();
+
     }
 
     @Override
