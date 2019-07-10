@@ -85,10 +85,10 @@ public class BookingStep4Fragment extends Fragment {
 
         //Process Timestamp
         //We will use Timestamp to filter all booking with date is greater today
-        //Fot only display all future booking
+        //For only display all future booking
         String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
         String[] convertTime = startTime.split("-"); // Split ex : 9:00 - 10:00
-        //Get start time : get 9L00
+        //Get start time : get 9:00
         String[] startTimeConvert = convertTime[0].split(":");
         int startHourInt = Integer.parseInt(startTimeConvert[0].trim()); //we get 9
         int startMinInt = Integer.parseInt(startTimeConvert[1].trim()); //we get 00
@@ -165,9 +165,9 @@ public class BookingStep4Fragment extends Fragment {
                         {
                             //Set data
                             userBooking.document().set(bookingInformation)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
+                                        public void onSuccess(Void aVoid) {
                                             if (dialog.isShowing())
                                                 dialog.dismiss();
                                             addToCalendar(Common.bookingDate,
@@ -195,7 +195,8 @@ public class BookingStep4Fragment extends Fragment {
                 });
     }
 
-    private void addToCalendar(Calendar bookingDate, String convertTimeSlotToString) {
+    private void addToCalendar(Calendar bookingDate, String startDate) {
+
         String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
         String[] convertTime = startTime.split("-"); // Split ex : 9:00 - 10:00
         //Get start time : get 9L00
@@ -218,7 +219,7 @@ public class BookingStep4Fragment extends Fragment {
         endEvent.set(Calendar.MINUTE,endMinInt); //Set event end min
 
         //After we have startEvent and endEvent , convert it to format String
-        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM_yyyy HH:mm");
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         String startEventTime = calendarDateFormat.format(startEvent.getTime());
         String endEventTime = calendarDateFormat.format(endEvent.getTime());
 
@@ -227,8 +228,6 @@ public class BookingStep4Fragment extends Fragment {
         .append(startTime)
         .append(" with ")
         .append(Common.currentBarber.getName())
-        .append(" at ")
-        .append(Common.currentSalon.getName())
         .append(" at ")
         .append(Common.currentSalon.getName()).toString(),
                 new StringBuilder("Address: ").append(Common.currentSalon.getAddress()).toString());
@@ -265,6 +264,7 @@ public class BookingStep4Fragment extends Fragment {
             else
                 calendars= Uri.parse("content://calendar/events");
             getActivity().getContentResolver().insert(calendars,event);
+            getActivity().getContentResolver().insert(calendars,event);
 
 
         } catch (ParseException e) {
@@ -290,7 +290,7 @@ public class BookingStep4Fragment extends Fragment {
                 calName = managedCursor.getString(nameCol);
                 if (calName.contains("@gmail.com"))
                     gmailIdCAlendar = managedCursor.getString(idCol);
-                break; //Exit as soon have id
+                break; //Exit as soon as have id
             }while (managedCursor.moveToNext());
             managedCursor.close();
         }
