@@ -88,6 +88,8 @@ public class BookingStep4Fragment extends Fragment {
         //For only display all future booking
         String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
         String[] convertTime = startTime.split("-"); // Split ex : 9:00 - 10:00
+
+
         //Get start time : get 9:00
         String[] startTimeConvert = convertTime[0].split(":");
         int startHourInt = Integer.parseInt(startTimeConvert[0].trim()); //we get 9
@@ -164,7 +166,8 @@ public class BookingStep4Fragment extends Fragment {
                         if (task.getResult().isEmpty())
                         {
                             //Set data
-                            userBooking.document().set(bookingInformation)
+                            userBooking.document()
+                                    .set(bookingInformation)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -205,7 +208,7 @@ public class BookingStep4Fragment extends Fragment {
         int startMinInt = Integer.parseInt(startTimeConvert[1].trim()); //we get 00
 
         String[] endTimeConvert = convertTime[1].split(":");
-        int endHourInt = Integer.parseInt(endTimeConvert[1].trim()); //we get 10
+        int endHourInt = Integer.parseInt(endTimeConvert[0].trim()); //we get 10
         int endMinInt = Integer.parseInt(endTimeConvert[1].trim()); //we get 00
 
         Calendar startEvent = Calendar.getInstance();
@@ -224,7 +227,7 @@ public class BookingStep4Fragment extends Fragment {
         String endEventTime = calendarDateFormat.format(endEvent.getTime());
 
         addToDeviceCalendar(startEventTime,endEventTime,"Haircut Booking",
-                new StringBuilder("Haircut from")
+                new StringBuilder(" Haircut from ")
         .append(startTime)
         .append(" with ")
         .append(Common.currentBarber.getName())
@@ -259,7 +262,7 @@ public class BookingStep4Fragment extends Fragment {
             event.put(CalendarContract.Events.EVENT_TIMEZONE,timeZone);
 
             Uri calendars;
-            if (Build.VERSION.SDK_INT >= 8)
+            if (Build.VERSION.SDK_INT >= 19)
             calendars= Uri.parse("content://com.android.calendar/events");
             else
                 calendars= Uri.parse("content://calendar/events");
@@ -288,9 +291,10 @@ public class BookingStep4Fragment extends Fragment {
             int idCol = managedCursor.getColumnIndex(projection[0]);
             do{
                 calName = managedCursor.getString(nameCol);
-                if (calName.contains("@gmail.com"))
+                if (calName.contains("@gmail.com")) {
                     gmailIdCAlendar = managedCursor.getString(idCol);
-                break; //Exit as soon as have id
+                    break; //Exit as soon as have id
+                }
             }while (managedCursor.moveToNext());
             managedCursor.close();
         }
