@@ -51,6 +51,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -104,8 +105,8 @@ public class BookingStep4Fragment extends Fragment {
         Timestamp timestamp = new Timestamp(bookingDateWithourHouse.getTime());
 
         //Create booking information
-        BookingInformation bookingInformation = new BookingInformation();
-
+       final BookingInformation bookingInformation = new BookingInformation();
+        bookingInformation.setCityBook(Common.city);
         bookingInformation.setTimestamp(timestamp);
         bookingInformation.setDone(false); //Always FALSE, because we will use this field to filter for display for user
 
@@ -158,8 +159,18 @@ public class BookingStep4Fragment extends Fragment {
                 .collection("Booking");
 
         //Check if exist document in this collection
-        userBooking.whereEqualTo("done",false) //If have any document with field done = false
-        .get()
+        //Get Current date
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        Timestamp toDayTimestamp = new Timestamp(calendar.getTime());
+
+        userBooking
+                .whereGreaterThanOrEqualTo("timestamp", toDayTimestamp)
+                .whereEqualTo("done", false)
+                .limit(1) //Only take 1
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -266,8 +277,11 @@ public class BookingStep4Fragment extends Fragment {
             calendars= Uri.parse("content://com.android.calendar/events");
             else
                 calendars= Uri.parse("content://calendar/events");
-            getActivity().getContentResolver().insert(calendars,event);
-            getActivity().getContentResolver().insert(calendars,event);
+            Uri uri_save = getActivity().getContentResolver().insert(calendars,event);
+
+            //Save to cache
+            Paper.init(getActivity());
+            Paper.book().write(Common.EVENT_URI_CACHE,uri_save.toString());
 
 
         } catch (ParseException e) {

@@ -1,12 +1,15 @@
 package com.arfeenkhan.androidbarbershop.Common;
 
 import com.arfeenkhan.androidbarbershop.model.Barber;
+import com.arfeenkhan.androidbarbershop.model.BookingInformation;
 import com.arfeenkhan.androidbarbershop.model.Salon;
 import com.arfeenkhan.androidbarbershop.model.TimeSlot;
 import com.arfeenkhan.androidbarbershop.model.User;
+import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class Common {
     public static final String KEY_ENABLE_BUTTON_NEXT = "ENABLE_BUTTON_NEXT";
@@ -19,6 +22,7 @@ public class Common {
     public static final Object DISABLE_TAG = "DISABLE";
     public static final String KEY_TIME_SLOT = "TIME_SLOT";
     public static final String KEY_CONFIRM_BOOKING = "CONFIRM_BOOKING";
+    public static final String EVENT_URI_CACHE = "URI_EVENT_SAVE";
     public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
     public static Salon currentSalon;
@@ -28,6 +32,8 @@ public class Common {
     public static int currentTimeSlot = -1;
     public static Calendar bookingDate = Calendar.getInstance();
     public static SimpleDateFormat simpleFormatDate = new SimpleDateFormat("dd_MM_yyyy");  //Only use when need format key
+    public static BookingInformation currentBooking;
+    public static String currentBookingId = "";
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot)
@@ -75,5 +81,11 @@ public class Common {
            default:
                return "Closed";
         }
+    }
+
+    public static String convertTimestampTostring(Timestamp timestamp) {
+        Date data = timestamp.toDate();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
+        return simpleDateFormat.format(data);
     }
 }
