@@ -3,8 +3,8 @@
     package="com.arfeenkhan.androidbarbershop">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
-    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <application
         android:name=".utils.App"
@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.BookingActivity"/>
+        <activity android:name=".activity.CartActivity"></activity>
+        <activity android:name=".activity.BookingActivity" />
         <activity android:name=".activity.HomeActivity" />
 
         <meta-data
@@ -25,11 +26,9 @@
             android:value="@string/FACEBOOK_APP_ID" />
         <meta-data
             android:name="com.facebook.accountkit.ClientToken"
-            android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
-        <!--<meta-data-->
-            <!--android:name="preloaded_fonts"-->
-            <!--android:resource="@array/preloaded_fonts"/>-->
-
+            android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" /> <!-- <meta-data -->
+        <!-- android:name="preloaded_fonts" -->
+        <!-- android:resource="@array/preloaded_fonts"/> -->
         <activity android:name="com.facebook.accountkit.ui.AccountKitActivity" />
         <activity android:name=".activity.MainActivity">
             <intent-filter>

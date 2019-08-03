@@ -32,6 +32,7 @@ import com.arfeenkhan.androidbarbershop.Interface.ICountiteminCartListener;
 import com.arfeenkhan.androidbarbershop.Interface.ILookbookLoadListener;
 import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.activity.BookingActivity;
+import com.arfeenkhan.androidbarbershop.activity.CartActivity;
 import com.arfeenkhan.androidbarbershop.adapter.HomeSliderAdapter;
 import com.arfeenkhan.androidbarbershop.adapter.LookbookAdapter;
 import com.arfeenkhan.androidbarbershop.model.Banner;
@@ -133,6 +134,10 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
 
     }
 
+    @OnClick(R.id.card_view_cart)
+    void openCartActivity(){
+        startActivity(new Intent(getActivity(), CartActivity.class));
+    }
 
     private void deleteBookingFromBarber(boolean isChange) {
         /*

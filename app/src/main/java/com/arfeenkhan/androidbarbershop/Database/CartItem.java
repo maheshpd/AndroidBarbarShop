@@ -23,10 +23,10 @@ public class CartItem {
     private Long productPrice;
 
     @ColumnInfo(name = "productQuantity")
-    private Long productQuantity;
+    private int productQuantity;
 
     @ColumnInfo(name = "userPhone")
-    private Long userPhone;
+    private String userPhone;
 
     //Getter & Setter
 
@@ -64,19 +64,19 @@ public class CartItem {
         this.productPrice = productPrice;
     }
 
-    public Long getProductQuantity() {
+    public int getProductQuantity() {
         return productQuantity;
     }
 
-    public void setProductQuantity(Long productQuantity) {
+    public void setProductQuantity(int productQuantity) {
         this.productQuantity = productQuantity;
     }
 
-    public Long getUserPhone() {
+    public String getUserPhone() {
         return userPhone;
     }
 
-    public void setUserPhone(Long userPhone) {
+    public void setUserPhone(String userPhone) {
         this.userPhone = userPhone;
     }
 
