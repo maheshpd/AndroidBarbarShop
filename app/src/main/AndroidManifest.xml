@@ -14,7 +14,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.CartActivity"></activity>
+        <service
+            android:name=".service.MyFCMService">
+            <intent-filter>
+                <action android:name="com.goole.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <activity android:name=".activity.CartActivity" />
         <activity android:name=".activity.BookingActivity" />
         <activity android:name=".activity.HomeActivity" />
 
