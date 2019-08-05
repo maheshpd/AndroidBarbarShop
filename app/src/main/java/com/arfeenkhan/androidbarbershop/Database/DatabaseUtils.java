@@ -124,7 +124,7 @@ public class DatabaseUtils {
         private void inserToCart(CartDatabase db, CartItem cartItem) {
             //If item already available in car, just increase quantity
             try {
-
+                db.cartDAO().insert(cartItem);
             } catch (SQLiteConstraintException exception) {
                 CartItem updateCartItem = db.cartDAO().getProductInCart(cartItem.getProductId(),
                         Common.currentUser.getPhoneNumber());

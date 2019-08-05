@@ -107,6 +107,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_centerHorizontal="true"
+                        android:layout_marginEnd="-10dp"
                         android:layout_gravity="center_horizontal"
                         android:src="@drawable/ic_shopping_cart_black_24dp" />
 
@@ -122,11 +123,11 @@
                         android:textSize="17sp" />
 
                     <com.nex3z.notificationbadge.NotificationBadge
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:id="@+id/notification_badge"
                         app:nbMaxTextLength="2"
-                        android:layout_toEndOf="@+id/cart_icon" />
+                        android:layout_toRightOf="@+id/cart_icon"/>
 
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>

@@ -89,7 +89,7 @@ public class MyShoppingAdapter extends RecyclerView.Adapter<MyShoppingAdapter.My
             img_shopping_item = itemView.findViewById(R.id.img_shopping_item);
             txt_shopping_item_name = itemView.findViewById(R.id.txt_name_shopping_item);
             txt_shopping_item_prince = itemView.findViewById(R.id.txt_price_shopping_item);
-            txt_add_to_cart = itemView.findViewById(R.id.txt_salon_address);
+            txt_add_to_cart = itemView.findViewById(R.id.txt_add_to_cart);
 
             txt_add_to_cart.setOnClickListener(this);
         }

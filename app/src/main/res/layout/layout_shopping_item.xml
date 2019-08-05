@@ -45,6 +45,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
             <TextView
+                android:id="@+id/txt_add_to_cart"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
