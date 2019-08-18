@@ -1,8 +1,11 @@
 package com.arfeenkhan.androidbarbershop.model;
 
+import com.google.firebase.firestore.FieldValue;
+
 public class MyNotification {
     private String uid,title,content;
     private boolean read;
+    private FieldValue serverTimestamp;
 
     public MyNotification() {
     }
@@ -37,5 +40,13 @@ public class MyNotification {
 
     public void setRead(boolean read) {
         this.read = read;
+    }
+
+    public FieldValue getServerTimestamp() {
+        return serverTimestamp;
+    }
+
+    public void setServerTimestamp(FieldValue serverTimestamp) {
+        this.serverTimestamp = serverTimestamp;
     }
 }

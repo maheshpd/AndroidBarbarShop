@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.provider.CalendarContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,16 +28,24 @@ import android.widget.Toast;
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.R;
+import com.arfeenkhan.androidbarbershop.Retrofit.IFCMApi;
+import com.arfeenkhan.androidbarbershop.Retrofit.RetrofitClient;
 import com.arfeenkhan.androidbarbershop.model.BookingInformation;
+import com.arfeenkhan.androidbarbershop.model.FCMResponse;
+import com.arfeenkhan.androidbarbershop.model.FCMSendData;
 import com.arfeenkhan.androidbarbershop.model.MyNotification;
+import com.arfeenkhan.androidbarbershop.model.MyToken;
 import com.arfeenkhan.androidbarbershop.model.TimeSlot;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.LogDescriptor;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -45,6 +54,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -54,15 +65,22 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import dmax.dialog.SpotsDialog;
 import io.paperdb.Paper;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class BookingStep4Fragment extends Fragment {
 
+    CompositeDisposable compositeDisposable = new CompositeDisposable();
     SimpleDateFormat simpleDateFormat;
     LocalBroadcastManager localBroadcastManager;
     Unbinder unbinder;
+
+    IFCMApi ifcmApi;
 
     AlertDialog dialog;
 
@@ -188,8 +206,9 @@ public class BookingStep4Fragment extends Fragment {
                                             MyNotification myNotification = new MyNotification();
                                             myNotification.setUid(UUID.randomUUID().toString());
                                             myNotification.setTitle("New Booking");
-                                            myNotification.setContent("You have a new appoiment for customer hair care!");
+                                            myNotification.setContent("You have a new appoiment for customer hair care with "+Common.currentUser.getName());
                                             myNotification.setRead(false); // We will only filter notification with 'read' is false on barber staff
+                                            myNotification.setServerTimestamp(FieldValue.serverTimestamp());
 
                                             //Submit Notification to 'Notification' collection of Barber
                                             FirebaseFirestore.getInstance()
@@ -205,11 +224,58 @@ public class BookingStep4Fragment extends Fragment {
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
-                                                            addToCalendar(Common.bookingDate,
-                                                                    Common.convertTimeSlotToString(Common.currentTimeSlot));
-                                                            resetStaticData();
-                                                            getActivity().finish(); //Close activity
-                                                            Toast.makeText(getContext(), "Success! ", Toast.LENGTH_SHORT).show();
+                                                            //First, get Token base on Barber id
+                                                            FirebaseFirestore.getInstance()
+                                                                    .collection("Tokens")
+                                                                    .whereEqualTo("userPhone", Common.currentBarber.getUsername())
+                                                                    .limit(1)
+                                                                    .get()
+                                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                            if (task.isSuccessful() && task.getResult().size() > 0) {
+                                                                                MyToken myToken = new MyToken();
+                                                                                for (DocumentSnapshot tokenSnapShot : task.getResult())
+                                                                                    myToken = tokenSnapShot.toObject(MyToken.class);
+
+                                                                                //Create data to send
+                                                                                FCMSendData sendRequest = new FCMSendData();
+                                                                                Map<String, String> dataSend = new HashMap<>();
+                                                                                dataSend.put(Common.TITLE_KEY, "New Booking");
+                                                                                dataSend.put(Common.CONTENT_KEY, "You have new booking from user " + Common.currentUser.getName());
+
+                                                                                sendRequest.setTo(myToken.getToken());
+                                                                                sendRequest.setData(dataSend);
+
+                                                                               compositeDisposable.add( ifcmApi.sendNotification(sendRequest)
+                                                                                       .subscribeOn(Schedulers.io())
+                                                                                       .observeOn(AndroidSchedulers.mainThread())
+                                                                                       .subscribe(new Consumer<FCMResponse>() {
+                                                                                           @Override
+                                                                                           public void accept(FCMResponse fcmResponse) throws Exception {
+                                                                                               dialog.dismiss();
+                                                                                               addToCalendar(Common.bookingDate,
+                                                                                                       Common.convertTimeSlotToString(Common.currentTimeSlot));
+                                                                                               resetStaticData();
+                                                                                               getActivity().finish(); //Close activity
+                                                                                               Toast.makeText(getContext(), "Success! ", Toast.LENGTH_SHORT).show();
+                                                                                           }
+                                                                                       }, new Consumer<Throwable>() {
+                                                                                           @Override
+                                                                                           public void accept(Throwable throwable) throws Exception {
+                                                                                               Log.d( "NOTIFICATION_ERROR",throwable.getMessage());
+                                                                                               dialog.dismiss();
+                                                                                               addToCalendar(Common.bookingDate,
+                                                                                                       Common.convertTimeSlotToString(Common.currentTimeSlot));
+                                                                                               resetStaticData();
+                                                                                               getActivity().finish(); //Close activity
+                                                                                               Toast.makeText(getContext(), "Success! ", Toast.LENGTH_SHORT).show();
+                                                                                           }
+                                                                                       }));
+
+                                                                            }
+                                                                        }
+                                                                    });
                                                         }
                                                     });
 
@@ -378,6 +444,9 @@ public class BookingStep4Fragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ifcmApi = RetrofitClient.getInstance().create(IFCMApi.class);
+
+
         //Apply format for date display on confirm
         simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
@@ -391,6 +460,7 @@ public class BookingStep4Fragment extends Fragment {
     @Override
     public void onDestroy() {
         localBroadcastManager.unregisterReceiver(confirmBookingReceiver);
+        compositeDisposable.clear();
         super.onDestroy();
     }
 
