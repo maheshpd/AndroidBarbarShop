@@ -39,7 +39,6 @@ import com.arfeenkhan.androidbarbershop.model.Banner;
 import com.arfeenkhan.androidbarbershop.model.BookingInformation;
 import com.arfeenkhan.androidbarbershop.service.PicassoImageLoadingService;
 import com.facebook.accountkit.AccountKit;
-import com.google.android.gms.common.util.DataUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,7 +46,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nex3z.notificationbadge.NotificationBadge;
@@ -246,6 +248,9 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     IBookingInfoLoadListener iBookingInfoLoadListener;
     IBookingInformationChangeListener iBookingInformationChangeListener;
 
+    ListenerRegistration userBookingListener = null;
+    EventListener<QuerySnapshot> userBookingEvent = null;
+
     public HomeFragment() {
         bannerRef = FirebaseFirestore.getInstance().collection("Banner");
         lookbookRef = FirebaseFirestore.getInstance().collection("Lookbook");
@@ -281,10 +286,32 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
             setUserInformation();
             loadBanner();
             loadLookBook();
+            initRealtimeUserBooking();  //Need declear above loadUserbooking
             loadUserBooking();
             countCarItem();
         }
         return view;
+    }
+
+    private void initRealtimeUserBooking() {
+        //Warning : Please follow this step is carefully
+        //Because if this step you do wrong, this will make
+        //infinity loop in your app, and you will retrive QUOTA LIMIT from FireStore
+        //If you do wrong , Firestore will get reach limit and you need wait for next 24 hours for reset
+        //I've this bug for two days :(small bug but take it alot of time to wait :(
+
+        if (userBookingEvent == null)  //We only init event if event is null
+
+        {
+            userBookingEvent = new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                    //In this event , when it fired  , we will call loadUserBooking again
+                    //to reload all booking information
+                    loadUserBooking();
+                }
+            };
+        }
     }
 
     private void countCarItem() {
@@ -409,6 +436,19 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
                 iBookingInfoLoadListener.onBookingInfoLoadFailed(e.getMessage());
             }
         });
+
+        //Here  , after userBooking has been assign data(collection)
+        //We will make realtime listen here
+
+        if (userBookingEvent != null)  //If userBookingEvent already init
+        {
+            if (userBookingListener == null) //Only add if userBookingListener == null
+            {
+                //That mean we just add 1 time
+                userBookingListener = userBooking
+                        .addSnapshotListener(userBookingEvent);
+            }
+        }
     }
 
     @Override
@@ -447,5 +487,12 @@ public class HomeFragment extends Fragment implements ILookbookLoadListener, IBa
     @Override
     public void onCartItemCountSuccess(int count) {
     notificationBadge.setText(String.valueOf(count));
+    }
+
+    @Override
+    public void onDestroy() {
+        if (userBookingListener != null)
+            userBookingListener.remove();
+        super.onDestroy();
     }
 }

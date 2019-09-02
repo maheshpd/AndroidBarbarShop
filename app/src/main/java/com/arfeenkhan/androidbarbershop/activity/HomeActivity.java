@@ -3,23 +3,21 @@ package com.arfeenkhan.androidbarbershop.activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import androidx.annotation.NonNull;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.textfield.TextInputEditText;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
 import com.arfeenkhan.androidbarbershop.Common.Common;
+import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.fragments.HomeFragment;
 import com.arfeenkhan.androidbarbershop.fragments.ShopingFragment;
 import com.arfeenkhan.androidbarbershop.model.User;
-import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.utils.UpdateHelper;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
@@ -29,6 +27,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -36,6 +37,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.paperdb.Paper;
 
 public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUpdateCheckListener{
 
@@ -71,6 +73,12 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
                     @Override
                     public void onSuccess(final Account account) {
                         if (account != null) {
+
+                            //Save userPhone by paper
+                            Paper.init(HomeActivity.this);
+                            Paper.book().write(Common.LOGGED_KEY, account.getPhoneNumber().toString());
+
+
                             DocumentReference currentUser = userRef.document(account.getPhoneNumber().toString());
                             currentUser.get()
                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

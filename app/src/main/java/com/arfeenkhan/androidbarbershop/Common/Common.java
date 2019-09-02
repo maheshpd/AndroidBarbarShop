@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -18,9 +19,7 @@ import com.arfeenkhan.androidbarbershop.model.Barber;
 import com.arfeenkhan.androidbarbershop.model.BookingInformation;
 import com.arfeenkhan.androidbarbershop.model.MyToken;
 import com.arfeenkhan.androidbarbershop.model.Salon;
-import com.arfeenkhan.androidbarbershop.model.TimeSlot;
 import com.arfeenkhan.androidbarbershop.model.User;
-import com.arfeenkhan.androidbarbershop.service.MyFCMService;
 import com.facebook.accountkit.AccessToken;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
@@ -34,6 +33,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import io.paperdb.Paper;
 
 public class Common {
     public static final String KEY_ENABLE_BUTTON_NEXT = "ENABLE_BUTTON_NEXT";
@@ -49,6 +50,7 @@ public class Common {
     public static final String EVENT_URI_CACHE = "URI_EVENT_SAVE";
     public static final String TITLE_KEY = "title";
     public static final String CONTENT_KEY = "content";
+    public static final String LOGGED_KEY = "userLogged";
     public static String IS_LOGIN = "IsLogin";
     public static User currentUser;
     public static Salon currentSalon;
@@ -161,14 +163,10 @@ public class Common {
 
     }
 
-    public static enum TOKEN_TYPE {
-        CLIENT,
-        BARBER,
-        MANAGER
-    }
+    public static void updateToken(Context context, String s) {
 
 
-    public static void updateToken(String s) {
+
         AccessToken accessToken = AccountKit.getCurrentAccessToken();
         if (accessToken != null) {
             AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
@@ -197,6 +195,35 @@ public class Common {
 
                 }
             });
+        } else {
+            Paper.init(context);
+            String user = Paper.book().read(Common.LOGGED_KEY);
+            if (user != null) {
+                if (!TextUtils.isEmpty(user)) {
+                    MyToken myToken = new MyToken();
+                    myToken.setToken(s);
+                    myToken.setToken_type(TOKEN_TYPE.CLIENT); //Because token come from client app
+                    myToken.setUserPhone(user);
+
+                    FirebaseFirestore.getInstance()
+                            .collection("Tokens")
+                            .document(user)
+                            .set(myToken)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                }
+                            });
+                }
+            }
         }
+    }
+
+
+    public enum TOKEN_TYPE {
+        CLIENT,
+        BARBER,
+        MANAGER
     }
 }

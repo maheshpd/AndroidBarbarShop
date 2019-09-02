@@ -5,10 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -16,6 +12,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.R;
@@ -35,7 +34,6 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<InstanceIdResult> task) {
                                 if (task.isSuccessful())
                                 {
-                                    Common.updateToken(task.getResult().getToken());
+                                    Common.updateToken(getBaseContext(), task.getResult().getToken());
 
                                     Log.d( "CreateAppToken: ",task.getResult().getToken());
                                     Intent intent = new Intent(MainActivity.this, HomeActivity.class);
@@ -123,10 +121,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Dexter.withActivity(this)
-                .withPermissions(new String[]{
-                        Manifest.permission.READ_CALENDAR,
-                        Manifest.permission.WRITE_CALENDAR
-                }).withListener(new MultiplePermissionsListener() {
+                .withPermissions(Manifest.permission.READ_CALENDAR,
+                        Manifest.permission.WRITE_CALENDAR).withListener(new MultiplePermissionsListener() {
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
                 AccessToken accessToken = AccountKit.getCurrentAccessToken();
@@ -142,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     if (task.isSuccessful())
                                     {
-                                        Common.updateToken(task.getResult().getToken());
+                                        Common.updateToken(getBaseContext(), task.getResult().getToken());
 
                                         Log.d( "CreateAppToken: ",task.getResult().getToken());
                                         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
