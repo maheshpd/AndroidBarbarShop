@@ -6,26 +6,24 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Common.SpacesItemDecoration;
 import com.arfeenkhan.androidbarbershop.Interface.ITimeSlotLoadListener;
 import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.adapter.MyTimeSlotAdapter;
+import com.arfeenkhan.androidbarbershop.model.EventBus.DisplayTimeSlotEvent;
 import com.arfeenkhan.androidbarbershop.model.TimeSlot;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -36,6 +34,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -60,7 +62,7 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     AlertDialog dialog;
 
     Unbinder unbinder;
-    LocalBroadcastManager localBroadcastManager;
+//    LocalBroadcastManager localBroadcastManager;
 
 
     @BindView(R.id.recycler_time_slot)
@@ -78,6 +80,32 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
                     simpleDateFormat.format(date.getTime()));
         }
     };
+
+    //==============================
+    //Event Bus
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void loadAllTimeSlotAvailable(DisplayTimeSlotEvent event) {
+        if (event.isDisplay()) {
+            //In booking activity ,  we have pass this event with isDisplay = true
+            Calendar date = Calendar.getInstance();
+            date.add(Calendar.DATE, 0); //Add current date
+            loadAvailableTimeSlotOfBarber(Common.currentBarber.getBarberId(),
+                    simpleDateFormat.format(date.getTime()));
+        }
+    }
+
 
     private void loadAvailableTimeSlotOfBarber(String barberId, String bookDate) {
         dialog.show();
@@ -150,8 +178,8 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         iTimeSlotLoadListener = this;
-        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        localBroadcastManager.registerReceiver(displayTimeSlot, new IntentFilter(Common.KEY_DISPLAK_TIME_SLOT));
+//        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
+//        localBroadcastManager.registerReceiver(displayTimeSlot, new IntentFilter(Common.KEY_DISPLAK_TIME_SLOT));
 
         simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy"); // 30_03_2019 (this is key)
         dialog = new ProgressDialog(getContext());
@@ -161,7 +189,7 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
 
     @Override
     public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(displayTimeSlot);
+//        localBroadcastManager.unregisterReceiver(displayTimeSlot);
         super.onDestroy();
     }
 

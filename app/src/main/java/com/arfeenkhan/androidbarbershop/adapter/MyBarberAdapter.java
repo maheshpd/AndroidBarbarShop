@@ -1,7 +1,6 @@
 package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,13 +9,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Interface.IRecycleItemSelectedListener;
 import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.model.Barber;
+import com.arfeenkhan.androidbarbershop.model.EventBus.EnableNextButton;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +26,13 @@ public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyBarb
     Context context;
     List<Barber> barberLiat;
     List<CardView> cardViewList;
-    LocalBroadcastManager localBroadcastManager;
+//    LocalBroadcastManager localBroadcastManager;
 
     public MyBarberAdapter(Context context, List<Barber> barberLiat) {
         this.context = context;
         this.barberLiat = barberLiat;
         cardViewList = new ArrayList<>();
-        localBroadcastManager = LocalBroadcastManager.getInstance(context);
+//        localBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @NonNull
@@ -65,10 +65,13 @@ public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyBarb
             .getColor(android.R.color.holo_orange_dark));
 
             //Send Local broadcast to enable button next
-            Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-            intent.putExtra(Common.KEY_BARBER_SELECTED,barberLiat.get(position));
-            intent.putExtra(Common.KEY_SEMP,2);
-            localBroadcastManager.sendBroadcast(intent);
+//            Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
+//            intent.putExtra(Common.KEY_BARBER_SELECTED,barberLiat.get(position));
+//            intent.putExtra(Common.KEY_SEMP,2);
+//            localBroadcastManager.sendBroadcast(intent);
+
+            //Eventbus
+            EventBus.getDefault().postSticky(new EnableNextButton(2, barberLiat.get(i)));
         });
     }
 

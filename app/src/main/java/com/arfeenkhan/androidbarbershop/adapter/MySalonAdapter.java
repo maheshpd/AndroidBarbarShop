@@ -1,20 +1,21 @@
 package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.arfeenkhan.androidbarbershop.Common.Common;
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.arfeenkhan.androidbarbershop.Interface.IRecycleItemSelectedListener;
-import com.arfeenkhan.androidbarbershop.model.Salon;
 import com.arfeenkhan.androidbarbershop.R;
+import com.arfeenkhan.androidbarbershop.model.EventBus.EnableNextButton;
+import com.arfeenkhan.androidbarbershop.model.Salon;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,13 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MySalonV
     Context context;
     List<Salon> salonList;
     List<CardView> cardViewList;
-    LocalBroadcastManager localBroadcastManager;
+//    LocalBroadcastManager localBroadcastManager;
 
     public MySalonAdapter(Context context, List<Salon> salonList) {
         this.context = context;
         this.salonList = salonList;
         cardViewList = new ArrayList<>();
-        localBroadcastManager = LocalBroadcastManager.getInstance(context);
+//        localBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
     @NonNull
@@ -59,10 +60,14 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MySalonV
                         .getColor(android.R.color.holo_orange_dark));
 
                 //Send Broadcast to tell Booking Activity enable Button next
-                Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-                intent.putExtra(Common.KEY_SALON_STORE,salonList.get(position));
-                intent.putExtra(Common.KEY_SEMP,1);
-                localBroadcastManager.sendBroadcast(intent);
+//                Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
+//                intent.putExtra(Common.KEY_SALON_STORE,salonList.get(position));
+//                intent.putExtra(Common.KEY_SEMP,1);
+//                localBroadcastManager.sendBroadcast(intent);
+
+                //EVentBus
+                EventBus.getDefault()
+                        .postSticky(new EnableNextButton(1, salonList.get(position)));
             }
         });
     }

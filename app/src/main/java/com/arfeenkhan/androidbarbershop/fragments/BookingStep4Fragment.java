@@ -7,17 +7,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,21 +19,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.R;
 import com.arfeenkhan.androidbarbershop.Retrofit.IFCMApi;
 import com.arfeenkhan.androidbarbershop.Retrofit.RetrofitClient;
 import com.arfeenkhan.androidbarbershop.model.BookingInformation;
+import com.arfeenkhan.androidbarbershop.model.EventBus.ConfirmBookingEvent;
 import com.arfeenkhan.androidbarbershop.model.FCMResponse;
 import com.arfeenkhan.androidbarbershop.model.FCMSendData;
 import com.arfeenkhan.androidbarbershop.model.MyNotification;
 import com.arfeenkhan.androidbarbershop.model.MyToken;
-import com.arfeenkhan.androidbarbershop.model.TimeSlot;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.LogDescriptor;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -49,7 +45,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.net.CookieHandler;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -77,7 +76,7 @@ public class BookingStep4Fragment extends Fragment {
 
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     SimpleDateFormat simpleDateFormat;
-    LocalBroadcastManager localBroadcastManager;
+    //    LocalBroadcastManager localBroadcastManager;
     Unbinder unbinder;
 
     IFCMApi ifcmApi;
@@ -382,7 +381,7 @@ public class BookingStep4Fragment extends Fragment {
     private String getCalendar(Context context) {
         //GEt default calendar ID of Calendar of Gmail
         String gmailIdCAlendar = "";
-        String projection[] = {"_id", "calendar_displayName"};
+        String[] projection = {"_id", "calendar_displayName"};
         Uri calendars = Uri.parse("content://com.android.calendar/calendars");
 
         ContentResolver contentResolver = context.getContentResolver();
@@ -420,6 +419,29 @@ public class BookingStep4Fragment extends Fragment {
         }
     };
 
+    //======================
+    //Event Bus
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void setDataBooking(ConfirmBookingEvent event) {
+        if (event.isConfirm()) {
+            setData();
+        }
+    }
+
+
     private void setData() {
         txt_booking_barber_text.setText(Common.currentBarber.getName());
         txt_booking_time_text.setText(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
@@ -449,8 +471,8 @@ public class BookingStep4Fragment extends Fragment {
 
         //Apply format for date display on confirm
         simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        localBroadcastManager.registerReceiver(confirmBookingReceiver, new IntentFilter(Common.KEY_CONFIRM_BOOKING));
+//        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
+//        localBroadcastManager.registerReceiver(confirmBookingReceiver, new IntentFilter(Common.KEY_CONFIRM_BOOKING));
 
         dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false)
                 .build();
@@ -459,7 +481,7 @@ public class BookingStep4Fragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(confirmBookingReceiver);
+//        localBroadcastManager.unregisterReceiver(confirmBookingReceiver);
         compositeDisposable.clear();
         super.onDestroy();
     }

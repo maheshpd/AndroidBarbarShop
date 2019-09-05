@@ -1,27 +1,24 @@
 package com.arfeenkhan.androidbarbershop.fragments;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.arfeenkhan.androidbarbershop.adapter.MyBarberAdapter;
-import com.arfeenkhan.androidbarbershop.Common.Common;
-import com.arfeenkhan.androidbarbershop.Common.SpacesItemDecoration;
-import com.arfeenkhan.androidbarbershop.model.Barber;
-import com.arfeenkhan.androidbarbershop.R;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import com.arfeenkhan.androidbarbershop.Common.SpacesItemDecoration;
+import com.arfeenkhan.androidbarbershop.R;
+import com.arfeenkhan.androidbarbershop.adapter.MyBarberAdapter;
+import com.arfeenkhan.androidbarbershop.model.EventBus.BarberDoneEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,20 +30,41 @@ import butterknife.Unbinder;
 public class BookingStep2Fragment extends Fragment {
 
     Unbinder unbinder;
-    LocalBroadcastManager localBroadcastManager;
+//    LocalBroadcastManager localBroadcastManager;
 
     @BindView(R.id.recycler_barber)
     RecyclerView recycler_barber;
-    
-    private BroadcastReceiver barberDoneReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ArrayList<Barber> barberArrayList = intent.getParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE);
-            //Create adapter late
-            MyBarberAdapter adapter = new MyBarberAdapter(getContext(),barberArrayList);
-            recycler_barber.setAdapter(adapter);
-        }
-    };
+
+//    private BroadcastReceiver barberDoneReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            ArrayList<Barber> barberArrayList = intent.getParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE);
+//            //Create adapter late
+//            MyBarberAdapter adapter = new MyBarberAdapter(getContext(),barberArrayList);
+//            recycler_barber.setAdapter(adapter);
+//        }
+//    };
+
+    //Event Bus START
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void setBarberAdapter(BarberDoneEvent event) {
+        MyBarberAdapter adapter = new MyBarberAdapter(getContext(), event.getBarberList());
+        recycler_barber.setAdapter(adapter);
+    }
 
     static BookingStep2Fragment instance;
     public static BookingStep2Fragment getInstance() {
@@ -58,13 +76,13 @@ public class BookingStep2Fragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        localBroadcastManager.registerReceiver(barberDoneReceiver,new IntentFilter(Common.KEY_BARBER_LOAD_DONE));
+//        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
+//        localBroadcastManager.registerReceiver(barberDoneReceiver,new IntentFilter(Common.KEY_BARBER_LOAD_DONE));
     }
 
     @Override
     public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(barberDoneReceiver);
+//        localBroadcastManager.unregisterReceiver(barberDoneReceiver);
         super.onDestroy();
     }
 

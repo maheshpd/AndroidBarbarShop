@@ -1,25 +1,23 @@
 package com.arfeenkhan.androidbarbershop.activity;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.arfeenkhan.androidbarbershop.adapter.MyViewPagerAdapter;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Common.NonSwipeViewPager;
-import com.arfeenkhan.androidbarbershop.model.Barber;
 import com.arfeenkhan.androidbarbershop.R;
+import com.arfeenkhan.androidbarbershop.adapter.MyViewPagerAdapter;
+import com.arfeenkhan.androidbarbershop.model.Barber;
+import com.arfeenkhan.androidbarbershop.model.EventBus.BarberDoneEvent;
+import com.arfeenkhan.androidbarbershop.model.EventBus.ConfirmBookingEvent;
+import com.arfeenkhan.androidbarbershop.model.EventBus.DisplayTimeSlotEvent;
+import com.arfeenkhan.androidbarbershop.model.EventBus.EnableNextButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -28,6 +26,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.shuhart.stepview.StepView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +40,7 @@ import butterknife.OnClick;
 
 public class BookingActivity extends AppCompatActivity {
 
-    LocalBroadcastManager localBroadcastManager;
+    // LocalBroadcastManager localBroadcastManager;
     ProgressDialog dialog;
     CollectionReference barberRef;
 
@@ -89,14 +91,18 @@ public class BookingActivity extends AppCompatActivity {
 
     private void confirmBooking() {
         //Send broadcast to fragment step four
-        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
-        localBroadcastManager.sendBroadcast(intent);
+//        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
+//        localBroadcastManager.sendBroadcast(intent);
+
+        EventBus.getDefault().postSticky(new ConfirmBookingEvent(true));
     }
 
     private void loadTimeslotOfBarber(String barberId) {
         // Send Local Broadcast to Fragment step 3
-        Intent intent = new Intent(Common.KEY_DISPLAK_TIME_SLOT);
-        localBroadcastManager.sendBroadcast(intent);
+//        Intent intent = new Intent(Common.KEY_DISPLAK_TIME_SLOT);
+//        localBroadcastManager.sendBroadcast(intent);
+
+        EventBus.getDefault().postSticky(new DisplayTimeSlotEvent(true));
     }
 
     private void loadBarberBySalon(String salonId) {
@@ -122,12 +128,19 @@ public class BookingActivity extends AppCompatActivity {
                                 Barber barber = barberSnapShot.toObject(Barber.class);
                                 barber.setPassword("");  //Remove password because in client app
                                 barber.setBarberId(barberSnapShot.getId()); //Get Id of barber
+
                                 barbers.add(barber);
                             }
                             //Send Broadcast to BookingStepFragment to load Recycle
-                           Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
-                            intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE,barbers);
-                            localBroadcastManager.sendBroadcast(intent);
+//                           Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
+//                            intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE,barbers);
+//                            localBroadcastManager.sendBroadcast(intent);
+
+                            EventBus.getDefault()
+                                    .postSticky(new BarberDoneEvent(barbers));
+
+
+
                             dialog.dismiss();
                         }
                     })
@@ -141,21 +154,35 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     //Broadcast Receiver
-    private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int step = intent.getIntExtra(Common.KEY_SEMP,0);
-            if (step == 1) {
-                Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
-            }
-            else if (step == 2)
-                Common.currentBarber = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
-            else if (step == 3)
-                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT,-1);
-            btn_next_step.setEnabled(true);
-            setColorButton();
-        }
-    };
+//    private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            int step = intent.getIntExtra(Common.KEY_SEMP,0);
+//            if (step == 1) {
+//                Common.currentSalon = intent.getParcelableExtra(Common.KEY_SALON_STORE);
+//            }
+//            else if (step == 2)
+//                Common.currentBarber = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
+//            else if (step == 3)
+//                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT,-1);
+//            btn_next_step.setEnabled(true);
+//            setColorButton();
+//        }
+//    };
+
+    //Event Bus convert
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void buttonNextReceiver(EnableNextButton event) {
+        int step = event.getStep();
+        if (step == 1) {
+            Common.currentSalon = event.getSalon();
+        } else if (step == 2)
+            Common.currentBarber = event.getBarber();
+        else if (step == 3)
+            Common.currentTimeSlot = event.getTimeSlot();
+        btn_next_step.setEnabled(true);
+        setColorButton();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,8 +192,8 @@ public class BookingActivity extends AppCompatActivity {
 
         dialog = new ProgressDialog(this);
 
-        localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENABLE_BUTTON_NEXT));
+//        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+//        localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENABLE_BUTTON_NEXT));
 
 
         setupStepView();
@@ -203,11 +230,11 @@ public class BookingActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        localBroadcastManager.unregisterReceiver(buttonNextReceiver);
-    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        localBroadcastManager.unregisterReceiver(buttonNextReceiver);
+//    }
 
     private void setColorButton() {
         if (btn_next_step.isEnabled()) {
@@ -231,5 +258,19 @@ public class BookingActivity extends AppCompatActivity {
         stepList.add("Time");
         stepList.add("Confirm");
         stepView.setSteps(stepList);
+    }
+
+    //Event Bus
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 }
