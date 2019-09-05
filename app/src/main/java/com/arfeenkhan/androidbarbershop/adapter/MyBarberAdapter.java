@@ -2,20 +2,21 @@ package com.arfeenkhan.androidbarbershop.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Interface.IRecycleItemSelectedListener;
-import com.arfeenkhan.androidbarbershop.model.Barber;
 import com.arfeenkhan.androidbarbershop.R;
+import com.arfeenkhan.androidbarbershop.model.Barber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,10 @@ public class MyBarberAdapter extends RecyclerView.Adapter<MyBarberAdapter.MyBarb
     @Override
     public void onBindViewHolder(@NonNull final MyBarberViewHolder myBarberViewHolder, int i) {
         myBarberViewHolder.txt_barber_name.setText(barberLiat.get(i).getName());
-        myBarberViewHolder.ratingBar.setRating((float)barberLiat.get(i).getRating());
+        if (barberLiat.get(i).getRatingTimes() != null)
+            myBarberViewHolder.ratingBar.setRating(barberLiat.get(i).getRating().floatValue() / barberLiat.get(i).getRatingTimes());
+        else
+            myBarberViewHolder.ratingBar.setRating(0);
         if (!cardViewList.contains(myBarberViewHolder.card_barber))
             cardViewList.add(myBarberViewHolder.card_barber);
 

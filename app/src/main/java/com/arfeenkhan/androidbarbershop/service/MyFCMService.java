@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -42,6 +43,9 @@ public class MyFCMService extends FirebaseMessagingService {
 
         if (remoteMessage.getData() != null) {
             if (remoteMessage.getData().get("update_done") != null) {
+                Map<String, String> dataReceived = remoteMessage.getData();
+                Paper.init(this);
+                Paper.book().write(Common.RATING_INFORMATION_KEY, new Gson().toJson(dataReceived));
                 updateLastBooking();
             }
 

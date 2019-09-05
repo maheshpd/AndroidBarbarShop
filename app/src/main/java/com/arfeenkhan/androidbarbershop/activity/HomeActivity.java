@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -34,12 +35,16 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.paperdb.Paper;
 
-public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUpdateCheckListener{
+public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUpdateCheckListener {
 
     @BindView(R.id.bottom_navigation)
     BottomNavigationView bottomNavigationView;
@@ -49,6 +54,7 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
     CollectionReference userRef;
     ProgressDialog dialog;
     AlertDialog alertDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +94,7 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
                                                 DocumentSnapshot userSnapShot = task.getResult();
                                                 if (!userSnapShot.exists()) {
                                                     showUpdateDialog(account.getPhoneNumber().toString());
-                                                }else {
+                                                } else {
                                                     //if user already available in our system
                                                     Common.currentUser = userSnapShot.toObject(User.class);
                                                     bottomNavigationView.setSelectedItemId(R.id.action_home);
@@ -96,9 +102,11 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
                                                 if (dialog.isShowing())
                                                     dialog.dismiss();
 
-                                                UpdateHelper.with(HomeActivity.this)
-                                                        .onUpdateCheck(HomeActivity.this)
-                                                        .check();
+//                                                UpdateHelper.with(HomeActivity.this)
+//                                                        .onUpdateCheck(HomeActivity.this)
+//                                                        .check();
+
+
 
 
                                             }
@@ -193,14 +201,14 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
      */
     @Override
     public void onUpdateCheckListener(final String urlApp) {
-            //Create Alert Dialog
+        //Create Alert Dialog
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("New Version Available")
                 .setMessage("Please update to new version to continue use")
                 .setPositiveButton("Update", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(HomeActivity.this, ""+urlApp, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(HomeActivity.this, "" + urlApp, Toast.LENGTH_SHORT).show();
                     }
                 }).setNegativeButton("NO THANKS", new DialogInterface.OnClickListener() {
                     @Override
@@ -209,5 +217,35 @@ public class HomeActivity extends AppCompatActivity implements UpdateHelper.OnUp
                     }
                 }).create();
         alertDialog.show();
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //Check rating dialog
+        checkRatingDialog();
+    }
+
+    private void checkRatingDialog() {
+        Paper.init(this);
+        String dataSerialized = Paper.book().read(Common.RATING_INFORMATION_KEY, "");
+        if (!TextUtils.isEmpty(dataSerialized)) // if not null
+        {
+            Map<String, String> dataReceived = new Gson()
+                    .fromJson(dataSerialized, new TypeToken<Map<String, String>>() {
+                    }.getType());
+
+            if (dataReceived != null) {
+
+                Common.showRatingDialog(HomeActivity.this,
+                        dataReceived.get(Common.RATING_STATE_KEY),
+                        dataReceived.get(Common.RATING_SALON_ID),
+                        dataReceived.get(Common.RATING_SALON_NAME),
+                        dataReceived.get(Common.RATING_SALON_ID));
+            }
+
+        }
     }
 }
