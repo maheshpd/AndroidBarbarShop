@@ -3,6 +3,8 @@ package com.arfeenkhan.androidbarbershop.Database;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
+
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Interface.ICartItemLoadListener;
 import com.arfeenkhan.androidbarbershop.Interface.ICountiteminCartListener;
@@ -12,6 +14,11 @@ import java.util.List;
 
 public class DatabaseUtils {
     //Because all room handle need work on other thread
+
+    public static void clearCart(CartDatabase db) {
+        ClearCartAsync task = new ClearCartAsync(db);
+    }
+
 
     public static void sumCart(CartDatabase db, ISumCartListener iSumCartListener) {
         SumCartAsync task = new SumCartAsync(db, iSumCartListener);
@@ -38,6 +45,12 @@ public class DatabaseUtils {
         CountItemInCartAsync task = new CountItemInCartAsync(db, iCountiteminCartListener);
         task.execute();
     }
+
+    public static void deleteCart(@NonNull final CartDatabase db, CartItem cartItem) {
+        DeleteCartAsync task = new DeleteCartAsync(db);
+        task.execute(cartItem);
+    }
+
 
     /*
     ==================================================================
@@ -161,6 +174,21 @@ public class DatabaseUtils {
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             listener.onCartItemCountSuccess(integer.intValue());
+        }
+    }
+
+    private static class DeleteCartAsync extends AsyncTask<CartItem, Void, Void> {
+
+        private final CartDatabase db;
+
+        public DeleteCartAsync(CartDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected Void doInBackground(CartItem... cartItems) {
+            db.cartDAO().delete(cartItems[0]);
+            return null;
         }
     }
 }
