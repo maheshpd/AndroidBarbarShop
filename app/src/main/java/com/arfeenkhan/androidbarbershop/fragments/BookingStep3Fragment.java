@@ -2,7 +2,6 @@ package com.arfeenkhan.androidbarbershop.fragments;
 
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +49,7 @@ import butterknife.Unbinder;
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.HorizontalCalendarView;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
+import dmax.dialog.SpotsDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,7 +60,7 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     DocumentReference barberDoc;
     ITimeSlotLoadListener iTimeSlotLoadListener;
     AlertDialog dialog;
-
+    Calendar selected_date;
     Unbinder unbinder;
 //    LocalBroadcastManager localBroadcastManager;
 
@@ -120,47 +120,44 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
                 .document(Common.currentBarber.getBarberId());
 
         //Get information of this barber
-        barberDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) //If barber available
-                    {
-                        //Get information of bookinf
-                        //If not create, return empty
-                        CollectionReference date = FirebaseFirestore.getInstance()
-                                .collection("AllSalon")
-                                .document(Common.city)
-                                .collection("Branch")
-                                .document(Common.currentSalon.getSalonId())
-                                .collection("Barbers")
-                                .document(Common.currentBarber.getBarberId())
-                                .collection(bookDate); //bookDate is date simpleformat with dd_MM_yyyy = 02_07_2019
+        barberDoc.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot documentSnapshot = task.getResult();
+                if (documentSnapshot.exists()) //If barber available
+                {
+                    //Get information of bookinf
+                    //If not create, return empty
+                    CollectionReference date = FirebaseFirestore.getInstance()
+                            .collection("AllSalon")
+                            .document(Common.city)
+                            .collection("Branch")
+                            .document(Common.currentSalon.getSalonId())
+                            .collection("Barbers")
+                            .document(Common.currentBarber.getBarberId())
+                            .collection(bookDate); //bookDate is date simpleformat with dd_MM_yyyy = 02_07_2019
 
-                        date.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    QuerySnapshot querySnapshot = task.getResult();
-                                    if (querySnapshot.isEmpty()) //If don't have any appoment
-                                        iTimeSlotLoadListener.onTimeSlotLoadEmpty();
-                                    else {
-                                        //If have appoiment
-                                        List<TimeSlot> timeSlots = new ArrayList<>();
-                                        for (QueryDocumentSnapshot document : task.getResult())
-                                            timeSlots.add(document.toObject(TimeSlot.class));
-                                        iTimeSlotLoadListener.onTimeSlotLoadSuccess(timeSlots);
-                                    }
+                    date.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                QuerySnapshot querySnapshot = task.getResult();
+                                if (querySnapshot.isEmpty()) //If don't have any appoment
+                                    iTimeSlotLoadListener.onTimeSlotLoadEmpty();
+                                else {
+                                    //If have appoiment
+                                    List<TimeSlot> timeSlots = new ArrayList<>();
+                                    for (QueryDocumentSnapshot document : task.getResult())
+                                        timeSlots.add(document.toObject(TimeSlot.class));
+                                    iTimeSlotLoadListener.onTimeSlotLoadSuccess(timeSlots);
                                 }
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                iTimeSlotLoadListener.onTimeSlotLoadFailed(e.getMessage());
-                            }
-                        });
-                    }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            iTimeSlotLoadListener.onTimeSlotLoadFailed(e.getMessage());
+                        }
+                    });
                 }
             }
         });
@@ -182,8 +179,9 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
 //        localBroadcastManager.registerReceiver(displayTimeSlot, new IntentFilter(Common.KEY_DISPLAK_TIME_SLOT));
 
         simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy"); // 30_03_2019 (this is key)
-        dialog = new ProgressDialog(getContext());
+        dialog = new SpotsDialog.Builder().setContext(getContext()).build();
         dialog.setCanceledOnTouchOutside(false);
+
 
     }
 

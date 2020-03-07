@@ -1,25 +1,26 @@
 package com.arfeenkhan.androidbarbershop.fragments;
 
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.arfeenkhan.androidbarbershop.adapter.MySalonAdapter;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.arfeenkhan.androidbarbershop.Common.Common;
 import com.arfeenkhan.androidbarbershop.Common.SpacesItemDecoration;
 import com.arfeenkhan.androidbarbershop.Interface.IAllSalonLoadListener;
 import com.arfeenkhan.androidbarbershop.Interface.IBranchLoadListener;
-import com.arfeenkhan.androidbarbershop.model.Salon;
 import com.arfeenkhan.androidbarbershop.R;
+import com.arfeenkhan.androidbarbershop.adapter.MySalonAdapter;
+import com.arfeenkhan.androidbarbershop.model.Salon;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -35,6 +36,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import dmax.dialog.SpotsDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -52,7 +54,7 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
     RecyclerView recycler_salon;
 
     Unbinder unbinder;
-    ProgressDialog dialog;
+    AlertDialog dialog;
     static BookingStep1Fragment instance;
 
     public static BookingStep1Fragment getInstance() {
@@ -67,7 +69,7 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
         allSalonRef = FirebaseFirestore.getInstance().collection("AllSalon");
         iAllSalonLoadListener = this;
         iBranchLoadListener = this;
-        dialog = new ProgressDialog(getActivity());
+        dialog = new SpotsDialog.Builder().setContext(getActivity()).build();
     }
 
     @Override
@@ -92,21 +94,15 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
 
     private void loadAllSalon() {
         allSalonRef.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
                         List<String> list = new ArrayList<>();
                         list.add("Please choose city");
-                        for (QueryDocumentSnapshot documentSnapshot:task.getResult())
+                        for (QueryDocumentSnapshot documentSnapshot : task.getResult())
                             list.add(documentSnapshot.getId());
                         iAllSalonLoadListener.onAllSalonLoadSuccess(list);
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                iAllSalonLoadListener.onAllSalonLoadFailed(e.getMessage());
-            }
-        });
+                }).addOnFailureListener(e -> iAllSalonLoadListener.onAllSalonLoadFailed(e.getMessage()));
     }
 
     @Override

@@ -17,7 +17,7 @@
         <service
             android:name=".service.MyFCMService">
             <intent-filter>
-                <action android:name="com.goole.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.goolge.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 

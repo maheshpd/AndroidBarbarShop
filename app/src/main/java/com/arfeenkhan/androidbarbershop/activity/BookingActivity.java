@@ -1,12 +1,13 @@
 package com.arfeenkhan.androidbarbershop.activity;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.arfeenkhan.androidbarbershop.Common.Common;
@@ -37,11 +38,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import dmax.dialog.SpotsDialog;
 
 public class BookingActivity extends AppCompatActivity {
 
-    // LocalBroadcastManager localBroadcastManager;
-    ProgressDialog dialog;
+    LocalBroadcastManager localBroadcastManager;
+    AlertDialog dialog;
     CollectionReference barberRef;
 
     @BindView(R.id.step_view)
@@ -190,7 +192,7 @@ public class BookingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_booking);
         ButterKnife.bind(BookingActivity.this);
 
-        dialog = new ProgressDialog(this);
+        dialog = new SpotsDialog.Builder().setContext(this).build();
 
 //        localBroadcastManager = LocalBroadcastManager.getInstance(this);
 //        localBroadcastManager.registerReceiver(buttonNextReceiver, new IntentFilter(Common.KEY_ENABLE_BUTTON_NEXT));
@@ -273,4 +275,5 @@ public class BookingActivity extends AppCompatActivity {
         super.onStop();
         EventBus.getDefault().unregister(this);
     }
+
 }
